@@ -1,0 +1,136 @@
+version: '3.7'
+
+volumes:
+    prometheus_data:
+    grafana_data:
+
+networks:
+  monitor-net:
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.4.0
+    volumes:
+    - "{{prometheus.folder}}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    - prometheus_data:/prometheus
+    - "{{prometheus.folder}}/prometheus/rules:/opt/lagoon/rules/"
+    command:
+    - '--config.file=/etc/prometheus/prometheus.yml'
+    - '--storage.tsdb.path=/prometheus'
+    - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+    - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+    - 9090:9090
+    networks:
+    - monitor-net
+    deploy:
+      placement:
+        constraints:
+        - node.role==manager
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  node-exporter:
+    image: prom/node-exporter:v0.16.0
+    volumes:
+    - /proc:/host/proc:ro
+    - /sys:/host/sys:ro
+    - /:/rootfs:ro
+    command:
+    - '--path.procfs=/host/proc'
+    - '--path.sysfs=/host/sys'
+    - --collector.filesystem.ignored-mount-points
+    - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+    - 9100:9100
+    networks:
+    - monitor-net
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  alertmanager:
+    image: prom/alertmanager:v0.15.2
+    ports:
+    - 9093:9093
+    volumes:
+    - "{{prometheus.folder}}/alertmanager/:/etc/alertmanager/"
+    networks:
+    - monitor-net
+    command:
+    - '--config.file=/etc/alertmanager/conf.yml'
+    - '--storage.path=/alertmanager'
+    deploy:
+      placement:
+        constraints:
+        - node.role==manager
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  cadvisor:
+    image: google/cadvisor:v0.31.0
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:ro
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+    - 8180:8080
+    networks:
+    - monitor-net
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  grafana:
+    image: grafana/grafana:5.2.4
+    ports:
+    - 3000:3000
+    volumes:
+    - grafana_data:/var/lib/grafana
+    - "{{prometheus.folder}}/grafana/provisioning/:/etc/grafana/provisioning/"
+    - "{{prometheus.folder}}/grafana/dashboards/:/opt/lagoon/dashboards/"
+    - "{{prometheus.folder}}/grafana/conf/:/etc/grafana/conf/"
+    environment:
+      GF_PATHS_CONFIG: /etc/grafana/conf/custom.ini
+    networks:
+    - monitor-net
+    deploy:
+      placement:
+        constraints:
+        - node.role==manager
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  pushgateway:
+    image: "prom/pushgateway:v0.5.2"
+    ports:
+    - 9091:9091
+    networks:
+    - monitor-net
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+ 

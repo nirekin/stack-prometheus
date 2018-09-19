@@ -1,0 +1,77 @@
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Load configuration
+    include_role:
+      name: lagoon.configuration
+
+- hosts: "{{hostvars['localhost'].lagoon_configuration_params.swarm_label.manager}}"
+  run_once: true
+  pre_tasks:
+  - name: Load configuration
+    include_role:
+      name: lagoon.configuration
+  tasks:
+  - name: Prepare LAGOON configuration
+    become: true
+    file:
+      path: /opt/lagoon
+      state: directory
+      mode: 0777
+  - name: Prepare configuration
+    file:
+      path: "{{prometheus.folder}}/{{item}}"
+      state: directory
+    with_items:
+    - prometheus/rules
+    - alertmanager
+    - cadvisor
+  - name: Send Prometheus configuration
+    copy:
+      src: "templates/{{item}}"
+      dest: "{{prometheus.folder}}/{{item}}"
+    with_items:
+    - prometheus/prometheus.yml
+  - name: Send compose configuration
+    template:
+      src: "templates/{{item}}"
+      dest: "{{prometheus.folder}}/{{item}}"
+    with_items:
+    - docker-compose.yml
+
+  - name: Prepare Grafana configuration
+    file: 
+      dest: "{{ item | regex_replace('templates', prometheus.folder) }}"
+      state: directory
+    with_items:
+    - "{{ lookup('pipe', 'find templates/grafana/dashboards -type d').split('\n') }}"
+    - "{{ lookup('pipe', 'find templates/grafana/provisioning -type d').split('\n') }}"
+  - name: Send Grafana configuration
+    copy: 
+      src: "{{ item }}"
+      dest: "{{ item | regex_replace('templates', prometheus.folder) }}"
+    with_items:
+    - "{{ lookup('pipe', 'find templates/grafana/dashboards -type f').split('\n') }}"
+    - "{{ lookup('pipe', 'find templates/grafana/provisioning -type f').split('\n') }}"
+  - name: Send Grafana custom configuration
+    template:
+      src: templates/grafana/conf/custom.ini
+      dest: "{{prometheus.folder}}/grafana/conf/"
+  - name: Send Grafana LDAP Configuration
+    template:
+      src: templates/grafana/conf/ldap.toml
+      dest: "{{prometheus.folder}}/grafana/conf/"
+    when: lagoon_configuration_params.params.grafana.ldap is defined
+
+  - name: Send alertmanager configuration
+    template:
+      src: "templates/alertmanager/conf.yml"
+      dest: "{{prometheus.folder}}/alertmanager/conf.yml"
+    when: lagoon_configuration_params.params.alertmanager.conf is defined
+
+  - name: Start Prometheus Stack
+    docker_stack:
+      state: present
+      name: stack-prometheus
+      compose:
+      - "{{prometheus.folder}}/docker-compose.yml"
