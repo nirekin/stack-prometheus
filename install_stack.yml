@@ -1,3 +1,4 @@
+---
 - hosts: localhost
   gather_facts: false
   tasks:
@@ -40,14 +41,14 @@
     - docker-compose.yml
 
   - name: Prepare Grafana configuration
-    file: 
+    file:
       dest: "{{ item | regex_replace('templates', prometheus.folder) }}"
       state: directory
     with_items:
     - "{{ lookup('pipe', 'find templates/grafana/dashboards -type d').split('\n') }}"
     - "{{ lookup('pipe', 'find templates/grafana/provisioning -type d').split('\n') }}"
   - name: Send Grafana configuration
-    copy: 
+    copy:
       src: "{{ item }}"
       dest: "{{ item | regex_replace('templates', prometheus.folder) }}"
     with_items:

@@ -1,8 +1,9 @@
+---
 version: '3.7'
 
 volumes:
-    prometheus_data:
-    grafana_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   monitor-net:
@@ -133,4 +134,3 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
- 
