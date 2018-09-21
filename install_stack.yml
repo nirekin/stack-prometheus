@@ -1,12 +1,5 @@
 ---
-- hosts: localhost
-  gather_facts: false
-  tasks:
-  - name: Load configuration
-    include_role:
-      name: lagoon.configuration
-
-- hosts: "{{hostvars['localhost'].lagoon_configuration_params.swarm_label.manager}}"
+- hosts: managers
   run_once: true
   pre_tasks:
   - name: Load configuration
