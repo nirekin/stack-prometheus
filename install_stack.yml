@@ -1,6 +1,5 @@
 ---
 - hosts: managers
-  run_once: true
   pre_tasks:
   - name: Load configuration
     include_role:
@@ -63,6 +62,9 @@
       dest: "{{prometheus.folder}}/alertmanager/conf.yml"
     when: lagoon_configuration_params.params.alertmanager.conf is defined
 
+- hosts: managers
+  run_once: true
+  tasks:
   - name: Start Prometheus Stack
     docker_stack:
       state: present
