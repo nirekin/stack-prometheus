@@ -3,7 +3,7 @@
 #filters = ldap:debug
 
 [[servers]]
-{% for server in lagoon_configuration_params.params.grafana.ldap.servers %}
+{% for server in ekara_configuration_params.params.grafana.ldap.servers %}
 {% for k,v in server.items() %}
 {{ k }} = {{ v | to_nice_json }}
 {% endfor %}
@@ -11,12 +11,12 @@
 
 # Specify names of the ldap attributes your ldap uses
 [servers.attributes]
-{% for k,v in lagoon_configuration_params.params.grafana.ldap.servers_attributes.items() %}
+{% for k,v in ekara_configuration_params.params.grafana.ldap.servers_attributes.items() %}
 {{ k }} = {{ v | to_nice_json }}
 {% endfor %}
 
 # Map ldap groups to grafana org roles
-{% for group in lagoon_configuration_params.params.grafana.ldap.servers_group_mappings %}
+{% for group in ekara_configuration_params.params.grafana.ldap.servers_group_mappings %}
 [[servers.group_mappings]]
 {% for k,v in group.items() %}
 {{ k }} = {{ v | to_nice_json }}

@@ -9,4 +9,4 @@ providers:
   disableDeletion: false
   updateIntervalSeconds: 5
   options:
-    path: /opt/lagoon/dashboards
+    path: /opt/ekara/dashboards

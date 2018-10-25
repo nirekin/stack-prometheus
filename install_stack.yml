@@ -3,12 +3,12 @@
   pre_tasks:
   - name: Load configuration
     include_role:
-      name: lagoon.configuration
+      name: ekara.configuration
   tasks:
-  - name: Prepare LAGOON configuration
+  - name: Prepare ekara configuration
     become: true
     file:
-      path: /opt/lagoon
+      path: /opt/ekara
       state: directory
       mode: 0777
   - name: Prepare configuration
@@ -54,13 +54,13 @@
     template:
       src: templates/grafana/conf/ldap.toml
       dest: "{{prometheus.folder}}/grafana/conf/"
-    when: lagoon_configuration_params.params.grafana.ldap is defined
+    when: ekara_configuration_params.params.grafana.ldap is defined
 
   - name: Send alertmanager configuration
     template:
       src: "templates/alertmanager/conf.yml"
       dest: "{{prometheus.folder}}/alertmanager/conf.yml"
-    when: lagoon_configuration_params.params.alertmanager.conf is defined
+    when: ekara_configuration_params.params.alertmanager.conf is defined
 
 - hosts: managers
   run_once: true

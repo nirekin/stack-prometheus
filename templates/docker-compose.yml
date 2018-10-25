@@ -15,7 +15,7 @@ services:
     volumes:
     - "{{prometheus.folder}}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
     - prometheus_data:/prometheus
-    - "{{prometheus.folder}}/prometheus/rules:/opt/lagoon/rules/"
+    - "{{prometheus.folder}}/prometheus/rules:/opt/ekara/rules/"
     command:
     - '--config.file=/etc/prometheus/prometheus.yml'
     - '--storage.tsdb.path=/prometheus'
@@ -105,7 +105,7 @@ services:
     volumes:
     - grafana_data:/var/lib/grafana
     - "{{prometheus.folder}}/grafana/provisioning/:/etc/grafana/provisioning/"
-    - "{{prometheus.folder}}/grafana/dashboards/:/opt/lagoon/dashboards/"
+    - "{{prometheus.folder}}/grafana/dashboards/:/opt/ekara/dashboards/"
     - "{{prometheus.folder}}/grafana/conf/:/etc/grafana/conf/"
     environment:
       GF_PATHS_CONFIG: /etc/grafana/conf/custom.ini

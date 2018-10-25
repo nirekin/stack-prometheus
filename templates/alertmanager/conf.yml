@@ -1,10 +1,10 @@
 ---
-# {% if lagoon_configuration_params.params.alertmanager.conf.global is defined %} Global Configuration
+# {% if ekara_configuration_params.params.alertmanager.conf.global is defined %} Global Configuration
 global:
-  {{ lagoon_configuration_params.params.alertmanager.conf.global | to_nice_yaml(indent=2) | indent(2, False)}}
+  {{ ekara_configuration_params.params.alertmanager.conf.global | to_nice_yaml(indent=2) | indent(2, False)}}
 # End Global Configuration {% endif %}
 
 route:
-  {{ lagoon_configuration_params.params.alertmanager.conf.route | to_nice_yaml(indent=2) | indent(2, False)}}
+  {{ ekara_configuration_params.params.alertmanager.conf.route | to_nice_yaml(indent=2) | indent(2, False)}}
 receivers:
-  {{ lagoon_configuration_params.params.alertmanager.conf.receivers | to_nice_yaml(indent=2) | indent(2, False)}}
+  {{ ekara_configuration_params.params.alertmanager.conf.receivers | to_nice_yaml(indent=2) | indent(2, False)}}

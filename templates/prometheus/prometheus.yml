@@ -12,12 +12,12 @@ global:
   # The labels to add to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-    monitor: lagoon
+    monitor: ekara
 
 # Rule files specifies a list of globs. Rules and alerts are read from
 # all matching files.
 rule_files:
-- /opt/lagoon/rules/*.rules
+- /opt/ekara/rules/*.rules
 
 # A list of scrape configurations.
 scrape_configs:
